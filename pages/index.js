@@ -172,7 +172,7 @@ export default function Home() {
         {currentAccount ? (
           <div>
             <form>
-              <div class="formgroup">
+              <div className="formgroup">
                 <label>Name</label>
                 <br />
 
@@ -184,7 +184,7 @@ export default function Home() {
                 />
               </div>
               <br />
-              <div class="formgroup">
+              <div className="formgroup">
                 <label>Send Madi a message</label>
                 <br />
 
