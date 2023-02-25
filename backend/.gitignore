@@ -2,6 +2,8 @@
 
 .encryptedKey.json
 
+gas-report.txt
+
 # dependencies
 /node_modules
 /.pnp

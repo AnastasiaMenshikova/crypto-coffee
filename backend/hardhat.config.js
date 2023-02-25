@@ -3,12 +3,10 @@ require("@nomiclabs/hardhat-etherscan")
 require("hardhat-deploy")
 require("solidity-coverage")
 require("hardhat-gas-reporter")
-require("hardhat-contract-sizer")
 require("hardhat-abi-exporter")
 require("dotenv").config()
 
 const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || process.env.ALCHEMY_MAINNET_RPC_URL
-const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
 const POLYGON_MUMBAI_RPC_URL = process.env.POLYGON_MUMBAI_RPC_URL
 const POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
@@ -25,12 +23,6 @@ module.exports = {
         },
         localhost: {
             chainId: 31337,
-        },
-        rinkeby: {
-            url: RINKEBY_RPC_URL,
-            accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            saveDeployments: true,
-            chainId: 4,
         },
         goerli: {
             url: GOERLI_RPC_URL,
@@ -60,21 +52,11 @@ module.exports = {
     etherscan: {
         // npx hardhat verify <CONTRACT_ADDRESS> --network <NETWORK> <CONSTRUCTOR_PARAMETERS>
         apiKey: {
-            rinkeby: ETHERSCAN_API_KEY,
             goerli: ETHERSCAN_API_KEY,
             polygon: POLYGONSCAN_API_KEY,
             polygonMumbai: POLYGONSCAN_API_KEY,
         },
     },
-    // abiExporter: {
-    //     path: "../my-app/pages/ABI",
-    //     runOnCompile: true,
-    //     clear: true,
-    //     flat: true,
-    //     only: [],
-    //     spacing: 2,
-    //     pretty: false,
-    // },
     gasReporter: {
         enabled: REPORT_GAS,
         currency: "USD",
@@ -88,7 +70,7 @@ module.exports = {
     namedAccounts: {
         deployer: {
             default: 0, // here this will by default take the first account as deployer
-            1: 0, // similarly on mainnet it will take the first account as deployer. Note though that depending on how hardhat network are configured, the account 0 on one network can be different than on another
+            1: 0, // similarly on mainnet it will take the first account as deployer
         },
         player: {
             default: 1,
@@ -98,9 +80,6 @@ module.exports = {
         compilers: [
             {
                 version: "0.8.7",
-            },
-            {
-                version: "0.4.24",
             },
         ],
     },
