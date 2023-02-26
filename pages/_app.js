@@ -17,9 +17,9 @@ const { chains, provider } = configureChains(
 )
 
 const { connectors } = getDefaultWallets({
-    appName: 'Crypto Coffee',
+    appName: "Crypto Coffee",
     chains,
-  });
+})
 
 const wagmiClient = createClient({
     autoConnect: true,

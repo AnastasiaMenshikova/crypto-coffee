@@ -1,5 +1,4 @@
 import abi from "./ABI/BuyMeACoffee.json"
-import { contractAddress } from "./constants";
 import { ethers } from "ethers"
 import Head from "next/head"
 import React, { useEffect, useState } from "react"
@@ -10,7 +9,8 @@ import styles from "../styles/Home.module.css"
 export default function Home() {
     // Contract ABI
     const contractABI = abi.abi
-    
+    const contractAddress = "0x87B9CFe5487d027102532B16657cd410432DBeE7"
+
     // State variables to signify a loading state
     const [loading, setLoading] = useState(false)
     const { isConnected } = useAccount()
@@ -22,7 +22,7 @@ export default function Home() {
     const [memos, setMemos] = useState([])
 
     // Get signer from wagmi
-    const { data: signer } = useSigner();
+    const { data: signer } = useSigner()
 
     const onNameChange = (event) => {
         setName(event.target.value)
@@ -157,7 +157,7 @@ export default function Home() {
                 buyMeACoffee.off("NewMemo", onNewMemo)
             }
         }
-    },)
+    })
 
     return (
         <div className={styles.container}>
@@ -201,10 +201,9 @@ export default function Home() {
                                 <button type="button" onClick={buyCoffee}>
                                     Send 1 Coffee for 0.001ETH
                                 </button>
-                            </div>                  
+                            </div>
                         </form>
                     </div>
-                    
                 ) : (
                     <button onClick={connectWallet}> Connect your wallet </button>
                 )}
