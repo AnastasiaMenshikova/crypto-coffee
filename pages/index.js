@@ -1,120 +1,50 @@
-import abi from "./ABI/BuyMeACoffee.json"
+import contractABI from "./ABI/BuyMeACoffee.json"
 import { ethers } from "ethers"
 import Head from "next/head"
 import React, { useEffect, useState } from "react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { useAccount, useSigner, useContract } from "wagmi"
+import { useAccount, useContractWrite, useContractRead } from "wagmi"
 import styles from "../styles/Home.module.css"
 
 export default function Home() {
-    // Contract ABI
-    const contractABI = abi.abi
     const contractAddress = "0x87B9CFe5487d027102532B16657cd410432DBeE7"
 
     // State variables to signify a loading state
-    const [loading, setLoading] = useState(false)
     const { isConnected } = useAccount()
 
     // Component state
-    const [currentAccount, setCurrentAccount] = useState("")
     const [name, setName] = useState("")
     const [message, setMessage] = useState("")
     const [memos, setMemos] = useState([])
 
-    // Get signer from wagmi
-    const { data: signer } = useSigner()
-
-    const onNameChange = (event) => {
-        setName(event.target.value)
+    const contractConfig = {
+        address: contractAddress,
+        abi: contractABI,
     }
 
-    const onMessageChange = (event) => {
-        setMessage(event.target.value)
-    }
+    // Buy coffee and send a message
+    const { write: buyCoffee } = useContractWrite({
+        ...contractConfig,
+        functionName: "buyCoffee",
+        args: [name, message],
+        overrides: {
+            value: ethers.utils.parseEther("0.001"),
+        },
+    })
 
-    // Wallet connection logic
-    const isWalletConnected = async () => {
-        try {
-            const { ethereum } = window
-
-            const accounts = await ethereum.request({ method: "eth_accounts" })
-            console.log("accounts: ", accounts)
-
-            if (accounts.length > 0) {
-                const account = accounts[0]
-                console.log("wallet is connected! " + account)
-            } else {
-                console.log("make sure MetaMask is connected")
-            }
-        } catch (error) {
-            console.log("error: ", error)
-        }
-    }
-
-    const connectWallet = async () => {
-        try {
-            const { ethereum } = window
-
-            if (!ethereum) {
-                console.log("please install MetaMask")
-            }
-
-            const accounts = await ethereum.request({
-                method: "eth_requestAccounts",
-            })
-
-            setCurrentAccount(accounts[0])
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const buyCoffee = async () => {
-        try {
-            const { ethereum } = window
-
-            if (ethereum) {
-                const provider = new ethers.providers.Web3Provider(ethereum, "any")
-                const signer = provider.getSigner()
-                const buyMeACoffee = new ethers.Contract(contractAddress, contractABI, signer)
-
-                console.log("buying coffee..")
-                const coffeeTxn = await buyMeACoffee.buyCoffee(
-                    name ? name : "anon",
-                    message ? message : "Enjoy your coffee!",
-                    { value: ethers.utils.parseEther("0.001") }
-                )
-
-                await coffeeTxn.wait()
-
-                console.log("mined ", coffeeTxn.hash)
-
-                console.log("coffee purchased!")
-
-                // Clear the form fields.
-                setName("")
-                setMessage("")
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    const { data } = useContractRead({
+        ...contractConfig,
+        functionName: "getMemos",
+    })
 
     // Function to fetch all memos stored on-chain.
     const getMemos = async () => {
         try {
-            const { ethereum } = window
-            if (ethereum) {
-                const provider = new ethers.providers.Web3Provider(ethereum)
-                const signer = provider.getSigner()
-                const buyMeACoffee = new ethers.Contract(contractAddress, contractABI, signer)
-
+            if (isConnected) {
                 console.log("fetching memos from the blockchain..")
-                const memos = await buyMeACoffee.getMemos()
+                const memos = data
                 console.log("fetched!")
                 setMemos(memos)
-            } else {
-                console.log("Metamask is not connected")
             }
         } catch (error) {
             console.log(error)
@@ -122,8 +52,6 @@ export default function Home() {
     }
 
     useEffect(() => {
-        let buyMeACoffee
-        isWalletConnected()
         getMemos()
 
         // Create an event handler function for when someone sends
@@ -141,22 +69,16 @@ export default function Home() {
             ])
         }
 
-        const { ethereum } = window
-
         // Listen for new memo events.
-        if (ethereum) {
-            const provider = new ethers.providers.Web3Provider(ethereum, "any")
-            const signer = provider.getSigner()
-            buyMeACoffee = new ethers.Contract(contractAddress, contractABI, signer)
+        // if (isConnected) {
+        //     buyMeACoffee.on("NewMemo", onNewMemo)
+        // }
 
-            buyMeACoffee.on("NewMemo", onNewMemo)
-        }
-
-        return () => {
-            if (buyMeACoffee) {
-                buyMeACoffee.off("NewMemo", onNewMemo)
-            }
-        }
+        // return () => {
+        //     if (buyMeACoffee) {
+        //         buyMeACoffee.off("NewMemo", onNewMemo)
+        //     }
+        // }
     })
 
     return (
@@ -169,8 +91,11 @@ export default function Home() {
 
             <main className={styles.main}>
                 <h1 className={styles.title}>Support me by buying cup of coffee</h1>
+                <div>
+                    <ConnectButton />
+                </div>
 
-                {currentAccount ? (
+                {isConnected && (
                     <div>
                         <form>
                             <div className="formgroup">
@@ -181,37 +106,48 @@ export default function Home() {
                                     id="name"
                                     type="text"
                                     placeholder="anon"
-                                    onChange={onNameChange}
+                                    value={name}
+                                    onChange={(e) => {
+                                        if (e.target.value === "") {
+                                            setName("anon")
+                                        } else {
+                                            setName(e.target.value)
+                                        }
+                                    }}
                                 />
                             </div>
                             <br />
                             <div className="formgroup">
-                                <label>Send Madi a message</label>
+                                <label>Send me a message</label>
                                 <br />
 
                                 <textarea
                                     rows={3}
                                     placeholder="Enjoy your coffee!"
                                     id="message"
-                                    onChange={onMessageChange}
-                                    required
+                                    value={message}
+                                    onChange={(e) => {
+                                        if (e.target.value === "") {
+                                            setMessage("Enjoy your coffee!")
+                                        } else {
+                                            setMessage(e.target.value)
+                                        }
+                                    }}
                                 ></textarea>
                             </div>
                             <div>
-                                <button type="button" onClick={buyCoffee}>
+                                <button type="button" onClick={() => buyCoffee()}>
                                     Send 1 Coffee for 0.001ETH
                                 </button>
                             </div>
                         </form>
                     </div>
-                ) : (
-                    <button onClick={connectWallet}> Connect your wallet </button>
                 )}
             </main>
 
-            {currentAccount && <h1>Memos received</h1>}
+            {isConnected && <h1>Memos received</h1>}
 
-            {currentAccount &&
+            {isConnected &&
                 memos.map((memo, idx) => {
                     return (
                         <div
