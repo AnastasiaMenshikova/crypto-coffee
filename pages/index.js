@@ -157,7 +157,7 @@ export default function Home() {
                 buyMeACoffee.off("NewMemo", onNewMemo)
             }
         }
-    }, [])
+    },)
 
     return (
         <div className={styles.container}>
