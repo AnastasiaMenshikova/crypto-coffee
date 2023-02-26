@@ -6,13 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier": "prettier --write pages"
   },
   "dependencies": {
+    "@rainbow-me/rainbowkit": "^0.11.0",
+    "dotenv": "^16.0.3",
     "ethers": "^5.6.5",
     "next": "12.1.0",
+    "prettier": "^2.8.4",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "wagmi": "^0.11.7"
   },
   "devDependencies": {
     "eslint": "7",
