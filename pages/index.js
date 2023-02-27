@@ -16,6 +16,7 @@ export default function Home() {
     const [name, setName] = useState("")
     const [message, setMessage] = useState("")
     const [memos, setMemos] = useState([])
+    // const [price, setPrice] = useState(0)
 
     const contractConfig = {
         address: contractAddress,
@@ -29,6 +30,7 @@ export default function Home() {
         args: [name, message],
         overrides: {
             value: ethers.utils.parseEther("0.001"),
+            // value: price,
         },
     })
 
@@ -91,9 +93,9 @@ export default function Home() {
 
             <main className={styles.main}>
                 <h1 className={styles.title}>Support me by buying cup of coffee</h1>
-                <div>
+                <p>
                     <ConnectButton />
-                </div>
+                </p>
 
                 {isConnected && (
                     <div>
@@ -135,13 +137,46 @@ export default function Home() {
                                     }}
                                 ></textarea>
                             </div>
-                            <div>
-                                <button type="button" onClick={() => buyCoffee()}>
-                                    Send 1 Coffee for 0.001ETH
+                            <p>
+                                <button
+                                    className={styles.button}
+                                    type="button"
+                                    onClick={() => {
+                                        // setPrice(ethers.utils.parseEther("0.001"))
+                                        buyCoffee()
+                                    }}
+                                ><span>  Send 1 Coffee for 0.001ETH  </span>
+                                    
                                 </button>
-                            </div>
+                            </p>
+                            {/* <p>
+                                <button
+                                    className={styles.button}
+                                    type="button"
+                                    onClick={() => {
+                                        setPrice(ethers.utils.parseEther("0.005"))
+                                        buyCoffee()
+                                    }}
+                                ><span> 5 Coffee for 0.005ETH</span>
+                                    
+                                </button>
+                            </p>
+
+                            <p>
+                                <button
+                                    className={styles.button}
+                                    type="button"
+                                    onClick={() => {
+                                        setPrice(ethers.utils.parseEther("0.1"))
+                                        buyCoffee()
+                                    }}
+                                ><span> 1 month supply for 0.1ETH</span>
+                                    
+                                </button>
+                            </p> */}
                         </form>
                     </div>
+                    
                 )}
             </main>
 
