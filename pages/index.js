@@ -13,10 +13,10 @@ export default function Home() {
     const { isConnected } = useAccount()
 
     // Component state
-    const [name, setName] = useState("")
-    const [message, setMessage] = useState("")
+    const [name, setName] = useState('anon')
+    const [message, setMessage] = useState('Enjoy your coffee!')
     const [memos, setMemos] = useState([])
-    // const [price, setPrice] = useState(0)
+    const [loading, setLoading] = useState(true);
 
     const contractConfig = {
         address: contractAddress,
@@ -27,7 +27,9 @@ export default function Home() {
     const { write: buyCoffee } = useContractWrite({
         ...contractConfig,
         functionName: "buyCoffee",
-        args: [name, message],
+        args: [name,
+             message
+            ],
         overrides: {
             value: ethers.utils.parseEther("0.001"),
             // value: price,
@@ -38,6 +40,16 @@ export default function Home() {
         ...contractConfig,
         functionName: "getMemos",
     })
+
+     // Function to call `buyCoffee`
+  async function handleBuyCoffee() {
+    // Send the create campaign transaction
+    const coffeeBuyTxn = buyCoffee()
+
+    // Clear the form fields.
+    setName('')
+    setMessage('')
+  }
 
     // Function to fetch all memos stored on-chain.
     const getMemos = async () => {
@@ -70,17 +82,6 @@ export default function Home() {
                 },
             ])
         }
-
-        // Listen for new memo events.
-        // if (isConnected) {
-        //     buyMeACoffee.on("NewMemo", onNewMemo)
-        // }
-
-        // return () => {
-        //     if (buyMeACoffee) {
-        //         buyMeACoffee.off("NewMemo", onNewMemo)
-        //     }
-        // }
     })
 
     return (
@@ -101,17 +102,18 @@ export default function Home() {
                     <div>
                         <form>
                             <div className="formgroup">
-                                <label>Name</label>
+                                <label className={styles.label}>Name</label>
                                 <br />
 
                                 <input
+                                    className={styles.inputbox}
                                     id="name"
                                     type="text"
                                     placeholder="anon"
                                     value={name}
                                     onChange={(e) => {
-                                        if (e.target.value === "") {
-                                            setName("anon")
+                                        if (e.target.value === '') {
+                                            setName('anon')
                                         } else {
                                             setName(e.target.value)
                                         }
@@ -120,17 +122,18 @@ export default function Home() {
                             </div>
                             <br />
                             <div className="formgroup">
-                                <label>Send me a message</label>
+                                <label className={styles.label}>Send me a message</label>
                                 <br />
 
                                 <textarea
+                                    className={styles.textbox}
                                     rows={3}
                                     placeholder="Enjoy your coffee!"
-                                    id="message"
+                                    type="text"
                                     value={message}
                                     onChange={(e) => {
-                                        if (e.target.value === "") {
-                                            setMessage("Enjoy your coffee!")
+                                        if (e.target.value === '') {
+                                            setMessage('Enjoy your coffee!')
                                         } else {
                                             setMessage(e.target.value)
                                         }
@@ -142,38 +145,12 @@ export default function Home() {
                                     className={styles.button}
                                     type="button"
                                     onClick={() => {
-                                        // setPrice(ethers.utils.parseEther("0.001"))
-                                        buyCoffee()
+                                        handleBuyCoffee()
                                     }}
                                 ><span>  Send 1 Coffee for 0.001ETH  </span>
                                     
                                 </button>
                             </p>
-                            {/* <p>
-                                <button
-                                    className={styles.button}
-                                    type="button"
-                                    onClick={() => {
-                                        setPrice(ethers.utils.parseEther("0.005"))
-                                        buyCoffee()
-                                    }}
-                                ><span> 5 Coffee for 0.005ETH</span>
-                                    
-                                </button>
-                            </p>
-
-                            <p>
-                                <button
-                                    className={styles.button}
-                                    type="button"
-                                    onClick={() => {
-                                        setPrice(ethers.utils.parseEther("0.1"))
-                                        buyCoffee()
-                                    }}
-                                ><span> 1 month supply for 0.1ETH</span>
-                                    
-                                </button>
-                            </p> */}
                         </form>
                     </div>
                     
@@ -181,9 +158,8 @@ export default function Home() {
             </main>
 
             {isConnected && <h1>Memos received</h1>}
-
             {isConnected &&
-                memos.map((memo, idx) => {
+                memos.filter((memo, idx) => idx > memos.length - 3).map((memo, idx) => {
                     return (
                         <div
                             key={idx}
