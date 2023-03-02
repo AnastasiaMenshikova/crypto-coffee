@@ -65,6 +65,11 @@ export default function Home() {
         }
     }
 
+    function timeConverter(_time){
+        var time = new Date(_time * 1000).toISOString().slice(0, 19).replace('T', ' ')
+        return time;
+      }
+
     useEffect(() => {
         getMemos()
 
@@ -157,9 +162,9 @@ export default function Home() {
                 )}
             </main>
 
-            {isConnected && <h1>Memos received</h1>}
+            {isConnected && <h1>Recent donations received</h1>}
             {isConnected &&
-                memos.filter((memo, idx) => idx > memos.length - 3).map((memo, idx) => {
+                memos.filter((memo, idx) => idx > memos.length - 3).slice(0).reverse().map((memo, idx) => {
                     return (
                         <div
                             key={idx}
@@ -172,7 +177,7 @@ export default function Home() {
                         >
                             <p style={{ "font-weight": "bold" }}>"{memo.message}"</p>
                             <p>
-                                From: {memo.name} at {memo.timestamp.toString()}
+                                From: {memo.name} at {timeConverter(memo.timestamp.toString())}
                             </p>
                         </div>
                     )
